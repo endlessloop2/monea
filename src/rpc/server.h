@@ -123,7 +123,7 @@ public:
 };
 
 /**
- * Dash RPC command dispatcher.
+ * Monea RPC command dispatcher.
  */
 class CRPCTable
 {
