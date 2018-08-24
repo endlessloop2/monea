@@ -12,6 +12,14 @@
 
 uint256 CBlockHeader::GetHash() const
 {
+    //hmm
+    return SerializeHash(*this);
+    //return HashX11(BEGIN(nVersion), END(nNonce));
+}
+
+uint256 CBlockHeader::GetPoWHash() const
+{
+    // algo here
     return HashX11(BEGIN(nVersion), END(nNonce));
 }
 
