@@ -10,6 +10,8 @@
 
 #include "init.h"
 
+#include "primitives/block.h"
+
 #include "addrman.h"
 #include "amount.h"
 #include "base58.h"
@@ -618,6 +620,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-blockprioritysize=<n>", strprintf(_("Set maximum size of high-priority/low-fee transactions in bytes (default: %d)"), DEFAULT_BLOCK_PRIORITY_SIZE));
     if (showDebug)
         strUsage += HelpMessageOpt("-blockversion=<n>", "Override block version to test forking scenarios");
+    strUsage += HelpMessageOpt("-algo=<algo>", _("Mining algorithm: sha256d, scrypt, neoscrypt, argon2d, yescrypt"));
 
     strUsage += HelpMessageGroup(_("RPC server options:"));
     strUsage += HelpMessageOpt("-server", _("Accept command line and JSON-RPC commands"));
@@ -1030,6 +1033,23 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         }
 #endif
     }
+
+    // determine algorithm to be used for any mining for this instance
+    std::string strAlgo = GetArg("-algo", "sha256d");
+    transform(strAlgo.begin(),strAlgo.end(),strAlgo.begin(),::tolower);
+    if (strAlgo == "sha" || strAlgo == "sha256" || strAlgo == "sha256d")
+        miningAlgo = ALGO_SLOT1;
+    else if (strAlgo == "scrypt")
+        miningAlgo = ALGO_SLOT2;
+    else if (strAlgo == "neoscrypt")
+        miningAlgo = ALGO_SLOT3;
+    else if (strAlgo == "argon2d" || strAlgo == "argon")
+        miningAlgo = ALGO_SLOT4;
+    else if (strAlgo == "yescrypt")
+        miningAlgo = ALGO_SLOT5;
+    else
+        miningAlgo = ALGO_SLOT1;    
+
 
     // Make sure enough file descriptors are available
     int nBind = std::max((int)mapArgs.count("-bind") + (int)mapArgs.count("-whitebind"), 1);
