@@ -111,3 +111,33 @@ void CBlockIndex::BuildSkip()
     if (pprev)
         pskip = pprev->GetAncestor(GetSkipHeight(nHeight));
 }
+
+const CBlockIndex* GetLastBlockIndexForAlgo(const CBlockIndex* pindex, int algo)
+{
+    for (;;)
+    {
+        if (!pindex)
+            return NULL;
+        if (pindex->GetAlgo() == algo)
+            return pindex;
+        pindex = pindex->pprev;
+    }
+}
+std::string GetAlgoName(int algo, uint32_t time)
+{
+    switch (algo)
+    {
+        case ALGO_SLOT1:
+            return std::string("Sha256d");
+        case ALGO_SLOT2:
+            return std::string("Scrypt");
+        case ALGO_SLOT3:
+            // still not defined, probably a X-something algo.. GPU
+            return std::string("Neoscrypt");
+        case ALGO_SLOT4:
+            return std::string("Argon2d");
+        case ALGO_SLOT5:
+            return std::string("Yescrypt");            
+    }
+    return std::string("Unknown");
+}
