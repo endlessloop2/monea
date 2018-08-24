@@ -74,6 +74,8 @@ extern bool fLogIPs;
 extern volatile bool fReopenDebugLog;
 extern CTranslationInterface translationInterface;
 
+extern int miningAlgo;
+
 extern const char * const BITCOIN_CONF_FILENAME;
 extern const char * const BITCOIN_PID_FILENAME;
 

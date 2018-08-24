@@ -165,7 +165,7 @@ UniValue generate(const UniValue& params, bool fHelp)
     UniValue blockHashes(UniValue::VARR);
     while (nHeight < nHeightEnd)
     {
-        std::unique_ptr<CBlockTemplate> pblocktemplate(CreateNewBlock(Params(), coinbaseScript->reserveScript));
+        std::unique_ptr<CBlockTemplate> pblocktemplate(CreateNewBlock(Params(), coinbaseScript->reserveScript, miningAlgo));
         if (!pblocktemplate.get())
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Couldn't create new block");
         CBlock *pblock = &pblocktemplate->block;
@@ -244,7 +244,14 @@ UniValue getmininginfo(const UniValue& params, bool fHelp)
             "  \"blocks\": nnn,             (numeric) The current block\n"
             "  \"currentblocksize\": nnn,   (numeric) The last block size\n"
             "  \"currentblocktx\": nnn,     (numeric) The last block transaction\n"
-            "  \"difficulty\": xxx.xxxxx    (numeric) The current difficulty\n"
+            "  \"pow_algo_id\": n           (numeric) The active mining algorithm id\n"
+            "  \"pow_algo\": \"name\"       (string) The active mining algorithm name\n"
+            "  \"difficulty\": xxx.xxxxx    (numeric) The current difficulty for active algorithm\n"
+            "  \"difficulty_sha256d\": xxx.xxxxx   (numeric) The current difficulty for sha256d\n"
+            "  \"difficulty_scrypt\": xxx.xxxxx (numeric) The current difficulty for scrypt\n"
+            "  \"difficulty_neoscrypt\": xxx.xxxxx (numeric) The current difficulty for neoscrypt\n"
+            "  \"difficulty_argon2d\": xxx.xxxxx (numeric) The current difficulty for argon2d\n"
+            "  \"difficulty_yescrypt\": xxx.xxxxx (numeric) The current difficulty for yescrypt\n"
             "  \"errors\": \"...\"          (string) Current errors\n"
             "  \"genproclimit\": n          (numeric) The processor limit for generation. -1 if no generation. (see getgenerate or setgenerate calls)\n"
             "  \"networkhashps\": n         (numeric) An estimate of the number of hashes per second the network is generating to maintain the current difficulty\n"
@@ -265,7 +272,14 @@ UniValue getmininginfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("blocks",           (int)chainActive.Height()));
     obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
     obj.push_back(Pair("currentblocktx",   (uint64_t)nLastBlockTx));
-    obj.push_back(Pair("difficulty",       (double)GetDifficulty()));
+    obj.push_back(Pair("pow_algo_id", miningAlgo));
+    obj.push_back(Pair("pow_algo", GetAlgoName(miningAlgo, GetTime(), Params().GetConsensus())));
+    obj.push_back(Pair("difficulty",         (double)GetDifficulty(NULL, miningAlgo)));
+    obj.push_back(Pair("difficulty_sha256d",   (double)GetDifficulty(NULL, ALGO_SLOT1)));
+    obj.push_back(Pair("difficulty_scrypt", (double)GetDifficulty(NULL, ALGO_SLOT2)));
+    obj.push_back(Pair("difficulty_neoscrypt", (double)GetDifficulty(NULL, ALGO_SLOT3)));
+    obj.push_back(Pair("difficulty_argon2d", (double)GetDifficulty(NULL, ALGO_SLOT4)));
+    obj.push_back(Pair("difficulty_yescrypt", (double)GetDifficulty(NULL, ALGO_SLOT5)));
     obj.push_back(Pair("errors",           GetWarnings("statusbar")));
     obj.push_back(Pair("genproclimit",     (int)GetArg("-genproclimit", DEFAULT_GENERATE_THREADS)));
     obj.push_back(Pair("networkhashps",    getnetworkhashps(params, false)));
@@ -584,7 +598,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
             pblocktemplate = NULL;
         }
         CScript scriptDummy = CScript() << OP_TRUE;
-        pblocktemplate = CreateNewBlock(Params(), scriptDummy);
+        pblocktemplate = CreateNewBlock(Params(), scriptDummy, miningAlgo);
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
 

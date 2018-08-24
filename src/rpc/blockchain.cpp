@@ -33,22 +33,32 @@ using namespace std;
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry);
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex);
 
-double GetDifficulty(const CBlockIndex* blockindex)
+double GetDifficulty(const CBlockIndex* blockindex, int algo)
 {
+    unsigned int nBits;
+    unsigned int powLimit = UintToArith256(Params().GetConsensus().powLimit[algo]).GetCompact();
     // Floating point number that is a multiple of the minimum difficulty,
     // minimum difficulty = 1.0.
     if (blockindex == NULL)
     {
         if (chainActive.Tip() == NULL)
-            return 1.0;
+            nBits = powLimit;
         else
-            blockindex = chainActive.Tip();
+        {
+            blockindex = GetLastBlockIndexForAlgo(chainActive.Tip(), algo);
+            if (blockindex == NULL)
+                nBits = powLimit;
+            else
+                nBits = blockindex->nBits;
+        }
     }
+    else
+        nBits = blockindex->nBits;
 
-    int nShift = (blockindex->nBits >> 24) & 0xff;
+    int nShift = (nBits >> 24) & 0xff;
 
     double dDiff =
-        (double)0x0000ffff / (double)(blockindex->nBits & 0x00ffffff);
+        (double)0x0000ffff / (double)(nBits & 0x00ffffff);
 
     while (nShift < 29)
     {
@@ -80,7 +90,10 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.push_back(Pair("mediantime", (int64_t)blockindex->GetMedianTimePast()));
     result.push_back(Pair("nonce", (uint64_t)blockindex->nNonce));
     result.push_back(Pair("bits", strprintf("%08x", blockindex->nBits)));
-    result.push_back(Pair("difficulty", GetDifficulty(blockindex)));
+    int algo = GetAlgo(blockindex->nVersion);
+    result.push_back(Pair("pow_algo_id", algo));
+    result.push_back(Pair("pow_algo", GetAlgoName(algo, blockindex->nTime, Params().GetConsensus())));
+    result.push_back(Pair("difficulty", GetDifficulty(blockindex, algo)));
     result.push_back(Pair("chainwork", blockindex->nChainWork.GetHex()));
 
     if (blockindex->pprev)
@@ -103,7 +116,6 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     result.push_back(Pair("size", (int)::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION)));
     result.push_back(Pair("height", blockindex->nHeight));
     result.push_back(Pair("version", block.nVersion));
-    result.push_back(Pair("pow_hash", block.GetPoWHash().GetHex()));    
     result.push_back(Pair("merkleroot", block.hashMerkleRoot.GetHex()));
     UniValue txs(UniValue::VARR);
     BOOST_FOREACH(const CTransaction&tx, block.vtx)
@@ -122,7 +134,11 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     result.push_back(Pair("mediantime", (int64_t)blockindex->GetMedianTimePast()));
     result.push_back(Pair("nonce", (uint64_t)block.nNonce));
     result.push_back(Pair("bits", strprintf("%08x", block.nBits)));
-    result.push_back(Pair("difficulty", GetDifficulty(blockindex)));
+    int algo = GetAlgo(blockindex->nVersion);
+    result.push_back(Pair("pow_algo_id", algo));
+    result.push_back(Pair("pow_algo", GetAlgoName(algo, blockindex->nTime, Params().GetConsensus())));
+    result.push_back(Pair("difficulty", GetDifficulty(blockindex, algo)));
+    result.push_back(Pair("pow_hash", block.GetPoWHash(block.GetAlgo(),Params().GetConsensus()).GetHex()));
     result.push_back(Pair("chainwork", blockindex->nChainWork.GetHex()));
 
     if (blockindex->pprev)
@@ -181,7 +197,7 @@ UniValue getdifficulty(const UniValue& params, bool fHelp)
         );
 
     LOCK(cs_main);
-    return GetDifficulty();
+    return GetDifficulty(NULL, miningAlgo);
 }
 
 UniValue mempoolToJSON(bool fVerbose = false)
@@ -359,6 +375,8 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
             "  \"mediantime\" : ttt,    (numeric) The median block time in seconds since epoch (Jan 1 1970 GMT)\n"
             "  \"nonce\" : n,           (numeric) The nonce\n"
             "  \"bits\" : \"1d00ffff\", (string) The bits\n"
+            "  \"pow_algo_id\" : n,     (numeric) The proof-of-work algorithm id\n"
+            "  \"pow_algo\" : \"name\", (string) The proof-of-work algorithm name\n"
             "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
             "  \"chainwork\" : \"0000...1f3\"     (string) Expected number of hashes required to produce the current chain (in hex)\n"
             "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
@@ -512,7 +530,10 @@ UniValue getblock(const UniValue& params, bool fHelp)
             "  \"mediantime\" : ttt,    (numeric) The median block time in seconds since epoch (Jan 1 1970 GMT)\n"
             "  \"nonce\" : n,           (numeric) The nonce\n"
             "  \"bits\" : \"1d00ffff\", (string) The bits\n"
+            "  \"pow_algo_id\" : n,     (numeric) The proof-of-work algorithm id\n"
+            "  \"pow_algo\" : \"name\", (string) The proof-of-work algorithm name\n"
             "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
+            "  \"pow_hash\" : \"hash\", (string) The proof-of-work hash\n"
             "  \"chainwork\" : \"xxxx\",  (string) Expected number of hashes required to produce the chain up to this block (in hex)\n"
             "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
             "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n"
@@ -825,7 +846,12 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
             "  \"blocks\": xxxxxx,         (numeric) the current number of blocks processed in the server\n"
             "  \"headers\": xxxxxx,        (numeric) the current number of headers we have validated\n"
             "  \"bestblockhash\": \"...\", (string) the hash of the currently best block\n"
-            "  \"difficulty\": xxxxxx,     (numeric) the current difficulty\n"
+            "  \"difficulty\": xxxxxx,     (numeric) the current difficulty for active mining algorithm\n"
+            "  \"difficulty_sha256d\": xxxxxx,   (numeric) the current difficulty for sha256d\n"
+            "  \"difficulty_scrypt\": xxxxxx, (numeric) the current difficulty for scrypt\n"
+            "  \"difficulty_neoscrypt\": xxxxxx, (numeric) the current difficulty for neoscrypt\n"
+            "  \"difficulty_argon2d\": xxxxxx, (numeric) the current difficulty for argon2d\n"
+            "  \"difficulty_yescrypt\": xxxxxx, (numeric) the current difficulty for yescrypt\n"
             "  \"mediantime\": xxxxxx,     (numeric) median time for the current best block\n"
             "  \"verificationprogress\": xxxx, (numeric) estimate of verification progress [0..1]\n"
             "  \"chainwork\": \"xxxx\"     (string) total amount of work in active chain, in hexadecimal\n"
@@ -863,7 +889,12 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("blocks",                (int)chainActive.Height()));
     obj.push_back(Pair("headers",               pindexBestHeader ? pindexBestHeader->nHeight : -1));
     obj.push_back(Pair("bestblockhash",         chainActive.Tip()->GetBlockHash().GetHex()));
-    obj.push_back(Pair("difficulty",            (double)GetDifficulty()));
+    obj.push_back(Pair("difficulty",            (double)GetDifficulty(NULL, miningAlgo)));
+    obj.push_back(Pair("difficulty_sha256d",      (double)GetDifficulty(NULL, ALGO_SLOT1)));
+    obj.push_back(Pair("difficulty_scrypt",    (double)GetDifficulty(NULL, ALGO_SLOT2)));
+    obj.push_back(Pair("difficulty_neoscrypt",    (double)GetDifficulty(NULL, ALGO_SLOT3)));
+    obj.push_back(Pair("difficulty_argon2d",    (double)GetDifficulty(NULL, ALGO_SLOT4)));
+    obj.push_back(Pair("difficulty_yescrypt",    (double)GetDifficulty(NULL, ALGO_SLOT5)));
     obj.push_back(Pair("mediantime",            (int64_t)chainActive.Tip()->GetMedianTimePast()));
     obj.push_back(Pair("verificationprogress",  Checkpoints::GuessVerificationProgress(Params().Checkpoints(), chainActive.Tip())));
     obj.push_back(Pair("chainwork",             chainActive.Tip()->nChainWork.GetHex()));
