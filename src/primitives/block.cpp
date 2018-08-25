@@ -24,26 +24,30 @@ uint256 CBlockHeader::GetHash() const
     //return HashX11(BEGIN(nVersion), END(nNonce));
 }
 
-uint256 CBlockHeader::GetPoWHash(int algo, const Consensus::Params& consensusParams) const
+uint256 CBlockHeader::GetPoWHash(int algo) const
 {
-    LogPrintf("DEBUG: GetPoWHash %d \n",algo);
+    //LogPrintf("DEBUG: GetPoWHash %d \n",algo);
     switch (algo)
     {
         case ALGO_SLOT1:
             return GetHash();
         case ALGO_SLOT2:
+        {   
             uint256 thash;
             // Caution: scrypt_1024_1_1_256 assumes fixed length of 80 bytes
             scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
             return thash;
+        }       
         case ALGO_SLOT3:
             return GetHash(); // TODO: till need to implement these libraries, may change algo
         case ALGO_SLOT4:
             return HashArgon2d(BEGIN(nVersion), END(nNonce));
         case ALGO_SLOT5:
-                uint256 thash;
-                yescrypt_hash(BEGIN(nVersion), BEGIN(thash));
-                return thash;           
+        {   
+            uint256 thash;
+            yescrypt_hash(BEGIN(nVersion), BEGIN(thash));
+            return thash;
+            }           
     }
     // catch-all if above doesn't match anything to algo
     return GetHash();
@@ -56,7 +60,7 @@ std::string CBlock::ToString() const
         GetHash().ToString(),
         nVersion,
         GetAlgo(),
-        GetPoWHash(GetAlgo(), consensusParams).ToString(),
+        GetPoWHash(GetAlgo()).ToString(),
         hashPrevBlock.ToString(),
         hashMerkleRoot.ToString(),
         nTime, nBits, nNonce,

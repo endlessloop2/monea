@@ -92,7 +92,7 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.push_back(Pair("bits", strprintf("%08x", blockindex->nBits)));
     int algo = GetAlgo(blockindex->nVersion);
     result.push_back(Pair("pow_algo_id", algo));
-    result.push_back(Pair("pow_algo", GetAlgoName(algo, blockindex->nTime, Params().GetConsensus())));
+    result.push_back(Pair("pow_algo", GetAlgoName(algo, blockindex->nTime)));
     result.push_back(Pair("difficulty", GetDifficulty(blockindex, algo)));
     result.push_back(Pair("chainwork", blockindex->nChainWork.GetHex()));
 
@@ -136,9 +136,9 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     result.push_back(Pair("bits", strprintf("%08x", block.nBits)));
     int algo = GetAlgo(blockindex->nVersion);
     result.push_back(Pair("pow_algo_id", algo));
-    result.push_back(Pair("pow_algo", GetAlgoName(algo, blockindex->nTime, Params().GetConsensus())));
+    result.push_back(Pair("pow_algo", GetAlgoName(algo, blockindex->nTime)));
     result.push_back(Pair("difficulty", GetDifficulty(blockindex, algo)));
-    result.push_back(Pair("pow_hash", block.GetPoWHash(block.GetAlgo(),Params().GetConsensus()).GetHex()));
+    result.push_back(Pair("pow_hash", block.GetPoWHash(block.GetAlgo()).GetHex()));
     result.push_back(Pair("chainwork", blockindex->nChainWork.GetHex()));
 
     if (blockindex->pprev)
@@ -1017,7 +1017,7 @@ UniValue getchaintips(const UniValue& params, bool fHelp)
         UniValue obj(UniValue::VOBJ);
         obj.push_back(Pair("height", block->nHeight));
         obj.push_back(Pair("hash", block->phashBlock->GetHex()));
-        obj.push_back(Pair("difficulty", GetDifficulty(block)));
+        obj.push_back(Pair("difficulty", GetDifficulty(block, block->GetAlgo() )));
         obj.push_back(Pair("chainwork", block->nChainWork.GetHex()));
         obj.push_back(Pair("branchlen", branchLen));
 

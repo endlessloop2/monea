@@ -173,7 +173,7 @@ UniValue generate(const UniValue& params, bool fHelp)
             LOCK(cs_main);
             IncrementExtraNonce(pblock, chainActive.Tip(), nExtraNonce);
         }
-        while (!CheckProofOfWork(pblock->GetPoWHash(), pblock->nBits, Params().GetConsensus())) {
+        while (!CheckProofOfWork(pblock->GetPoWHash(pblock->GetAlgo()), pblock->GetAlgo(), pblock->nBits, Params().GetConsensus())) {
             // Yes, there is a chance every nonce could fail to satisfy the -regtest
             // target -- 1 in 2^(2^32). That ain't gonna happen.
             ++pblock->nNonce;
@@ -273,7 +273,7 @@ UniValue getmininginfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
     obj.push_back(Pair("currentblocktx",   (uint64_t)nLastBlockTx));
     obj.push_back(Pair("pow_algo_id", miningAlgo));
-    obj.push_back(Pair("pow_algo", GetAlgoName(miningAlgo, GetTime(), Params().GetConsensus())));
+    obj.push_back(Pair("pow_algo", GetAlgoName(miningAlgo, GetTime())));
     obj.push_back(Pair("difficulty",         (double)GetDifficulty(NULL, miningAlgo)));
     obj.push_back(Pair("difficulty_sha256d",   (double)GetDifficulty(NULL, ALGO_SLOT1)));
     obj.push_back(Pair("difficulty_scrypt", (double)GetDifficulty(NULL, ALGO_SLOT2)));

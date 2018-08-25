@@ -14,6 +14,7 @@
 
 #include <math.h>
 
+/*
 unsigned int static KimotoGravityWell(const CBlockIndex* pindexLast, const Consensus::Params& params) {
     const CBlockIndex *BlockLastSolved = pindexLast;
     const CBlockIndex *BlockReading = pindexLast;
@@ -81,7 +82,7 @@ unsigned int static KimotoGravityWell(const CBlockIndex* pindexLast, const Conse
 }
 
 unsigned int static DarkGravityWave(const CBlockIndex* pindexLast, const Consensus::Params& params) {
-    /* current difficulty formula, monea - DarkGravity v3, written by Evan Duffield - evan@monea.org */
+    // current difficulty formula, monea - DarkGravity v3, written by Evan Duffield - evan@monea.org 
     const arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
     int64_t nPastBlocks = 24;
 
@@ -129,8 +130,8 @@ unsigned int static DarkGravityWave(const CBlockIndex* pindexLast, const Consens
 
     return bnNew.GetCompact();
 }
-
-unsigned int GetNextWorkRequiredBTC(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
+*/
+/*unsigned int GetNextWorkRequiredBTC(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
 
@@ -168,12 +169,12 @@ unsigned int GetNextWorkRequiredBTC(const CBlockIndex* pindexLast, const CBlockH
 
    return CalculateNextWorkRequired(pindexLast, pindexFirst->GetBlockTime(), params);
 }
-
+*/
 
 // NEW
-unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
+unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, int algo, const Consensus::Params& params)
 {
-    const arith_uint256 nProofOfWorkLimit = UintToArith256(params.powLimit);
+    const arith_uint256 nProofOfWorkLimit = UintToArith256(params.powLimit[algo]);
 
     // Genesis block
     if (pindexLast == NULL)
@@ -222,7 +223,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 }
 
 
-unsigned int GetNextWorkRequired_DASH(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
+/*unsigned int GetNextWorkRequired_DASH(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     // Most recent algo first
     if (pindexLast->nHeight + 1 >= params.nPowDGWHeight) {
@@ -234,10 +235,10 @@ unsigned int GetNextWorkRequired_DASH(const CBlockIndex* pindexLast, const CBloc
     else {
         return GetNextWorkRequiredBTC(pindexLast, pblock, params);
     }
-}
+}*/
 
 // for DIFF_BTC only!
-unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nFirstBlockTime, const Consensus::Params& params)
+unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nFirstBlockTime, int algo, const Consensus::Params& params)
 {
     if (params.fPowNoRetargeting)
         return pindexLast->nBits;
@@ -251,7 +252,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
         nActualTimespan = params.nPowTargetTimespan*4;
 
     // Retarget
-    const arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
+    const arith_uint256 bnPowLimit = UintToArith256(params.powLimit[algo]);
     arith_uint256 bnNew;
     arith_uint256 bnOld;
     bnNew.SetCompact(pindexLast->nBits);
@@ -271,7 +272,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
     return bnNew.GetCompact();
 }
 
-bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params& params)
+bool CheckProofOfWork(uint256 hash, int algo, unsigned int nBits, const Consensus::Params& params)
 {
     bool fNegative;
     bool fOverflow;
@@ -280,7 +281,7 @@ bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params&
     bnTarget.SetCompact(nBits, &fNegative, &fOverflow);
 
     // Check range
-    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > UintToArith256(params.powLimit))
+    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > UintToArith256(params.powLimit[algo]))
         return error("CheckProofOfWork(): nBits below minimum work");
 
     // Check proof of work matches claimed amount

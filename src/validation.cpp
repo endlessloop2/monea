@@ -1157,13 +1157,13 @@ bool CheckProofOfWork(const CBlockHeader& block, const Consensus::Params& params
     */
     // Based off an auxpow coin, that's the reason for this pointless function
     int algo = block.GetAlgo();
-    if (!CheckProofOfWork(block.GetPoWHash(algo, params), algo, block.nBits, params))
+    if (!CheckProofOfWork(block.GetPoWHash(algo), algo, block.nBits, params))
         return error("%s (val.cpp) : non-AUX proof of work failed, hash=%s, algo=%d, nVersion=%d, PoWHash=%s",
         __func__,
         block.GetHash().ToString(),
         algo,
         block.nVersion,
-        block.GetPoWHash(algo, params).ToString());
+        block.GetPoWHash(algo).ToString());
 
 
     return true;
@@ -1209,7 +1209,7 @@ bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos, const Consensus:
     }
 
     // Check the header
-    if (!CheckProofOfWork(block.GetPoWHash(), consensusParams))
+    if (!CheckProofOfWork(block, consensusParams))
         return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
 
     return true;
@@ -3257,7 +3257,7 @@ static bool CheckIndexAgainstCheckpoint(const CBlockIndex* pindexPrev, CValidati
 bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex * const pindexPrev)
 {
     const Consensus::Params& consensusParams = Params().GetConsensus();
-    int nHeight = pindexPrev->nHeight + 1
+    int nHeight = pindexPrev->nHeight + 1;
     
     // Check proof of work
     int algo = block.GetAlgo();

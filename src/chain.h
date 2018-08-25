@@ -343,14 +343,14 @@ public:
 
     //! Efficiently find an ancestor of this block.
     CBlockIndex* GetAncestor(int height);
-    const CBlockIndex* GetAncestor(int height) const;
-
-    /** Return the index to the last block of algo **/
-    const CBlockIndex* GetLastBlockIndexForAlgo(const CBlockIndex* pindex, int algo);
-    /** return current algorithm name from nVersion and timestamp **/
-    std::string GetAlgoName(int Algo, uint32_t time);    
+    const CBlockIndex* GetAncestor(int height) const;  
 
 };
+
+/** Return the index to the last block of algo **/
+const CBlockIndex* GetLastBlockIndexForAlgo(const CBlockIndex* pindex, int algo);
+/** return current algorithm name from nVersion and timestamp **/
+std::string GetAlgoName(int Algo, uint32_t time);  
 
 /** Used to marshal pointers into hashes for db storage. */
 class CDiskBlockIndex : public CBlockIndex
