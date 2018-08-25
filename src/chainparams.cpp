@@ -99,7 +99,13 @@ public:
         consensus.powLimit[ALGO_SLOT4] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 24 * 60 * 60; // Monea: 1 day
-        consensus.nPowTargetSpacing = 2.5 * 60; // Monea: 2.5 minutes
+        //consensus.nPowTargetSpacing = 2.5 * 60; // Monea: 2.5 minutes
+        
+        consensus.nPowTargetSpacing = 60; // 60 second block time
+        consensus.nPoWAveragingInterval = 10; // 10 block averaging interval
+        consensus.nMaxAdjustDown = 4; // 4% adjustment downwards
+        consensus.nMaxAdjustUp = 4; // 4% adjustment upwards
+
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nPowKGWHeight = 15200;
@@ -220,7 +226,13 @@ public:
         consensus.powLimit[ALGO_SLOT4] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 24 * 60 * 60; // Monea: 1 day
-        consensus.nPowTargetSpacing = 2.5 * 60; // Monea: 2.5 minutes
+        //consensus.nPowTargetSpacing = 2.5 * 60; // Monea: 2.5 minutes
+        
+        consensus.nPowTargetSpacing = 60; // 60 second block time
+        consensus.nPoWAveragingInterval = 10; // 10 block averaging interval
+        consensus.nMaxAdjustDown = 4; // 4% adjustment downwards
+        consensus.nMaxAdjustUp = 4; // 4% adjustment upwards
+
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
         consensus.nPowKGWHeight = 4001; // nPowKGWHeight >= nPowDGWHeight means "no KGW"
@@ -339,7 +351,13 @@ public:
         consensus.BIP34Hash = uint256();
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 24 * 60 * 60; // Monea: 1 day
-        consensus.nPowTargetSpacing = 2.5 * 60; // Monea: 2.5 minutes
+        //consensus.nPowTargetSpacing = 2.5 * 60; // Monea: 2.5 minutes
+        
+        consensus.nPowTargetSpacing = 60; // 60 second block time
+        consensus.nPoWAveragingInterval = 10; // 10 block averaging interval
+        consensus.nMaxAdjustDown = 4; // 4% adjustment downwards
+        consensus.nMaxAdjustUp = 4; // 4% adjustment upwards
+
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
         consensus.nPowKGWHeight = 15200; // same as mainnet
