@@ -1148,6 +1148,15 @@ bool GetTransaction(const uint256 &hash, CTransaction &txOut, const Consensus::P
 // CBlock and CBlockIndex
 //
 
+bool CheckProofOfWork(const CBlockHeader& block, const Consensus::Params& params)
+{
+
+    if (!CheckProofOfWork(block.GetPoWHash(), block.nBits, params))
+        return error("%s (val.cpp): proof of work failed", __func__);
+    return true;
+}
+
+
 bool WriteBlockToDisk(const CBlock& block, CDiskBlockPos& pos, const CMessageHeader::MessageStartChars& messageStart)
 {
     // Open history file to append
@@ -1187,7 +1196,7 @@ bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos, const Consensus:
     }
 
     // Check the header
-    if (!CheckProofOfWork(block.GetPoWHash(), block.nBits, consensusParams))
+    if (!CheckProofOfWork(block.GetPoWHash(), consensusParams))
         return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
 
     return true;
@@ -3107,7 +3116,7 @@ bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigne
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool fCheckPOW)
 {
     // Check proof of work matches claimed amount
-    if (fCheckPOW && !CheckProofOfWork(block.GetPoWHash(), block.nBits, Params().GetConsensus()))
+    if (fCheckPOW && !CheckProofOfWork(block, Params().GetConsensus()))
         return state.DoS(50, error("CheckBlockHeader(): proof of work failed"),
                          REJECT_INVALID, "high-hash");
 
