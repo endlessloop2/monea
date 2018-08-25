@@ -16,7 +16,7 @@
         ALGO_SLOT2 = 1,  // Scrypt
         ALGO_SLOT3 = 2,  // Neoscrypt (TBD)
         ALGO_SLOT4 = 3,  // Argon2d
-        ALGO_SLOT5 = 4  // Yescrypt
+        ALGO_SLOT5 = 4,  // Yescrypt
         NUM_ALGOS
     };
     enum {
