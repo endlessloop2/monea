@@ -82,7 +82,8 @@ CBlockTemplate* CreateNewBlock(const CChainParams& chainparams, const CScript& s
     if(!pblocktemplate.get())
         return NULL;
     CBlock *pblock = &pblocktemplate->block; // pointer for convenience
-
+    LogPrintf("CreateNewBlock() %d \n", algo);
+    
     // Create coinbase tx
     CMutableTransaction txNew;
     txNew.vin.resize(1);
@@ -143,6 +144,7 @@ CBlockTemplate* CreateNewBlock(const CChainParams& chainparams, const CScript& s
             pblock->nVersion = GetArg("-blockversion", pblock->nVersion);
         // multi-algo: encode algo into nVersion
         pblock->SetAlgo(algo);
+        LogPrintf("SetAlgo %d \n", algo);
 
 
         int64_t nLockTimeCutoff = (STANDARD_LOCKTIME_VERIFY_FLAGS & LOCKTIME_MEDIAN_TIME_PAST)
