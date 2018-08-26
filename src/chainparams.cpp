@@ -54,7 +54,7 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
  */
 static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {
-    const char* pszTimestamp = "11/08 Una moneitaaa";
+    const char* pszTimestamp = "25/08 Una moneitaaa test 2";
 
     const CScript genesisOutputScript = CScript() << ParseHex("04134bddda3177714c7c562dd12b86d57a5b4819cbf8d67211d163fa2ee66114f4a6dcecd955dbff45950fa54bc90ae59723c1f6ab10d9361dfbe63289a6e9de32") << OP_CHECKSIG;
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
@@ -107,6 +107,7 @@ public:
         consensus.nPoWAveragingInterval = 10; // 10 block averaging interval
         consensus.nMaxAdjustDown = 4; // 4% adjustment downwards
         consensus.nMaxAdjustUp = 4; // 4% adjustment upwards
+        consensus.nBlockSequentialAlgoMaxCount = 10;
 
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
@@ -151,7 +152,8 @@ public:
         nDelayGetHeadersTime = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
 
-        genesis = CreateGenesisBlock(1534032712, /*28917698*/ 29824803, 0x1e0ffff0, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1535246527, /*28917698*/ 32319630, 0x1e0ffff0, 1, 50 * COIN);
+
 
         if(false)
         {
@@ -160,12 +162,13 @@ public:
             bool fOverflow;
             arith_uint256 bnTarget;
             bnTarget.SetCompact(genesis.nBits, &fNegative, &fOverflow);
-            
-            uint256 thash = genesis.GetHash();
-            
+            int algo = genesis.GetAlgo();
+
+            uint256 thash = genesis.GetPoWHash(algo);
+
             while (UintToArith256(thash) > bnTarget)
             {
-                thash = genesis.GetHash();
+                thash = genesis.GetPoWHash(algo);
                 if (UintToArith256(thash) <= bnTarget)
                     break;
                 if ((genesis.nNonce & 0xFFFFF) == 0)
@@ -179,17 +182,17 @@ public:
                     ++genesis.nTime;
                 }
             }
-            
+
             printf("genesis.nTime = %u \n", genesis.nTime);
             printf("genesis.nNonce = %u \n", genesis.nNonce);
             printf("genesis.GetHash = %s\n", genesis.GetHash().ToString().c_str());
-            //printf("genesis.GetPoWHash = %s\n", genesis.GetPoWHash().ToString().c_str());
+            printf("genesis.GetPoWHash = %s\n", genesis.GetPoWHash(algo).ToString().c_str());
             printf("genesis.hashMerkleRoot = %s\n", BlockMerkleRoot(genesis).ToString().c_str());
-        }
+}
                      
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x00000a7b0e233619d9d60683927f7b61b4044da65da95b1f240eb6f7cde63b93"));
-        assert(genesis.hashMerkleRoot == uint256S("0xc863e8d4a2cfaa798dcbbf616c02f81bf8bc924ba5a50a1f16f55b4d4cfa21d7"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00000e8f1cc241af84459d442149ee5036e606b11268a44c9915ef2b64041ec0"));
+        assert(genesis.hashMerkleRoot == uint256S("0xe0bbf7e308f254ab323b5cef5d094c0c12e4967b664fb27ba4dd0c0ce98e2705"));
 
 
         //vSeeds.push_back(CDNSSeedData("monea.org", "dnsseed.monea.org"));
@@ -269,6 +272,7 @@ public:
         consensus.nPoWAveragingInterval = 10; // 10 block averaging interval
         consensus.nMaxAdjustDown = 4; // 4% adjustment downwards
         consensus.nMaxAdjustUp = 4; // 4% adjustment upwards
+        consensus.nBlockSequentialAlgoMaxCount = 10;
 
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
@@ -399,6 +403,7 @@ public:
         consensus.nPoWAveragingInterval = 10; // 10 block averaging interval
         consensus.nMaxAdjustDown = 4; // 4% adjustment downwards
         consensus.nMaxAdjustUp = 4; // 4% adjustment upwards
+        consensus.nBlockSequentialAlgoMaxCount = 10;
 
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
