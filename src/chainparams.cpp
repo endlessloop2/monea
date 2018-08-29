@@ -95,11 +95,12 @@ public:
         consensus.nMajorityWindow = 1000;
         consensus.BIP34Height = 1;
         consensus.BIP34Hash = uint256S("0x000007d91d1254d60e2dd1ae580383070a4ddffa4c64c2eeb4a2f9ecc0414343");
-        consensus.powLimit[ALGO_SLOT1] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit[ALGO_SLOT2] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit[ALGO_SLOT3] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit[ALGO_SLOT4] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit[ALGO_SLOT1] = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Sha256 (From BTC)
+        consensus.powLimit[ALGO_SLOT2] = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Scrypt (From LTC)
+        consensus.powLimit[ALGO_SLOT3] = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Neoscrypt (From UIS)
+        consensus.powLimit[ALGO_SLOT4] = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Argon2d (From UIS)
+        consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Yescrypt (From Unitus, might replace with koto)
+        // consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); Dash value
         consensus.nPowTargetTimespan = 24 * 60 * 60; // Monea: 1 day
         //consensus.nPowTargetSpacing = 2.5 * 60; // Monea: 2.5 minutes
         
@@ -152,7 +153,7 @@ public:
         nDelayGetHeadersTime = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
 
-        genesis = CreateGenesisBlock(1535246527, /*28917698*/ 32319630, 0x1e0ffff0, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1535246527, /*28917698*/ /*32319630*/  310184726, /*0x1e0ffff0*/ 0x1d00ffff, 1, 50 * COIN);
 
 
         if(false)
@@ -191,7 +192,7 @@ public:
 }
                      
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x00000e8f1cc241af84459d442149ee5036e606b11268a44c9915ef2b64041ec0"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0000000001efcb51f1e6cbd41a89a7359ce6e7955766ec982db3cd4dc84616f0"));
         assert(genesis.hashMerkleRoot == uint256S("0xe0bbf7e308f254ab323b5cef5d094c0c12e4967b664fb27ba4dd0c0ce98e2705"));
 
 
