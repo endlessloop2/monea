@@ -96,9 +96,9 @@ public:
         consensus.BIP34Height = 1;
         consensus.BIP34Hash = uint256S("0x000007d91d1254d60e2dd1ae580383070a4ddffa4c64c2eeb4a2f9ecc0414343");
         consensus.powLimit[ALGO_SLOT1] = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Sha256 (From BTC)
-        consensus.powLimit[ALGO_SLOT2] = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Scrypt (From LTC)
-        consensus.powLimit[ALGO_SLOT3] = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Neoscrypt (From UIS)
-        consensus.powLimit[ALGO_SLOT4] = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Argon2d (From UIS)
+        consensus.powLimit[ALGO_SLOT2] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Scrypt (From LTC) // reduced
+        consensus.powLimit[ALGO_SLOT3] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Neoscrypt (From UIS) // reduced
+        consensus.powLimit[ALGO_SLOT4] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Argon2d (From UIS) // reduced
         consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Yescrypt (From Unitus, might replace with koto)
         // consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); Dash value
         consensus.nPowTargetTimespan = 24 * 60 * 60; // Monea: 1 day

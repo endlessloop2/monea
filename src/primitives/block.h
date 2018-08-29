@@ -118,6 +118,16 @@ public:
                 break;
         }
     }
+    
+    inline int32_t GetBaseVersion() const
+    {
+        return GetBaseVersion(nVersion);
+    }
+    static inline int32_t GetBaseVersion(int32_t ver)
+    {
+        //return (ver & (~BLOCK_VERSION_ALGO));
+        return (ver & 0x000000ff);
+    }
 
 };
 
