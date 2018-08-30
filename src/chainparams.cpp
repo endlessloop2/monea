@@ -86,7 +86,7 @@ public:
         consensus.nBudgetPaymentsWindowBlocks = 100;
         consensus.nBudgetProposalEstablishingTime = 60*60*24;
         consensus.nSuperblockStartBlock = 614820; // The block at which 12.1 goes live (end of final 12.0 budget cycle)
-        consensus.nSuperblockCycle = 16616; // ~(60*24*30)/2.6, actual number of blocks per month is 200700 / 12 = 16725
+        consensus.nSuperblockCycle = 21900; // 43800 mins per month/2 = 21900 // Dash: ~(60*24*30)/2.6, actual number of blocks per month is 200700 / 12 = 16725 
         consensus.nGovernanceMinQuorum = 10;
         consensus.nGovernanceFilterElements = 20000;
         consensus.nMasternodeMinimumConfirmations = 15;
@@ -104,7 +104,7 @@ public:
         consensus.nPowTargetTimespan = 24 * 60 * 60; // Monea: 1 day
         //consensus.nPowTargetSpacing = 2.5 * 60; // Monea: 2.5 minutes
         
-        consensus.nPowTargetSpacing = 60; // 60 second block time
+        consensus.nPowTargetSpacing = 2*60; // 120 second block time
         consensus.nPoWAveragingInterval = 10; // 10 block averaging interval
         consensus.nMaxAdjustDown = 4; // 4% adjustment downwards
         consensus.nMaxAdjustUp = 4; // 4% adjustment upwards
@@ -148,8 +148,8 @@ public:
         pchMessageStart[2] = 0x6b;
         pchMessageStart[3] = 0xbd;
         vAlertPubKey = ParseHex("043d7e9bac9f2c78cb6a8ca15cb62f1e60adb3a71cbab2a531b27d16bb1accd912c80058c9edc62d22ed1c410de9ee37d6fe19390045e04323bbfd6de97672b257");
-        nDefaultPort = 9999;
-        nMaxTipAge = 6 * 60 * 60; // ~144 blocks behind -> 2 x fork detection time, was 24 * 60 * 60 in bitcoin
+        nDefaultPort = 9999; // Masternode port
+        nMaxTipAge = 6 * 60 * 60; // // Dash: ~144 blocks behind -> 2 x fork detection time, was 24 * 60 * 60 in bitcoin
         nDelayGetHeadersTime = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
 
@@ -198,10 +198,10 @@ public:
 
         //vSeeds.push_back(CDNSSeedData("monea.org", "dnsseed.monea.org"));
 
-        // Monea addresses start with 'X'
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,76);
-        // Monea script addresses start with '7'
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,16);
+        // Monea addresses start with 'M'
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,50);
+        // Monea script addresses start with '6'
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,13);
         // Monea private keys start with '7' or 'X'
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,204);
         // Monea BIP32 pubkeys start with 'xpub' (Bitcoin defaults)
@@ -261,15 +261,15 @@ public:
         consensus.nMajorityWindow = 100;
         consensus.BIP34Height = 1;
         consensus.BIP34Hash = uint256S("0x0000047d24635e347be3aaaeb66c26be94901a2f962feccd4f95090191f208c1");
-        consensus.powLimit[ALGO_SLOT1] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit[ALGO_SLOT2] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit[ALGO_SLOT3] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit[ALGO_SLOT4] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit[ALGO_SLOT1] = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Sha256 (From BTC)
+        consensus.powLimit[ALGO_SLOT2] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Scrypt (From LTC) // reduced
+        consensus.powLimit[ALGO_SLOT3] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Neoscrypt (From UIS) // reduced
+        consensus.powLimit[ALGO_SLOT4] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Argon2d (From UIS) // reduced
+        consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Yescrypt (From Unitus, might replace with koto)
         consensus.nPowTargetTimespan = 24 * 60 * 60; // Monea: 1 day
         //consensus.nPowTargetSpacing = 2.5 * 60; // Monea: 2.5 minutes
         
-        consensus.nPowTargetSpacing = 60; // 60 second block time
+        consensus.nPowTargetSpacing = 2*60; // 60 second block time
         consensus.nPoWAveragingInterval = 10; // 10 block averaging interval
         consensus.nMaxAdjustDown = 4; // 4% adjustment downwards
         consensus.nMaxAdjustUp = 4; // 4% adjustment upwards
@@ -314,6 +314,42 @@ public:
         nPruneAfterHeight = 1000;
 
         genesis = CreateGenesisBlock(1390666206UL, 3861367235UL, 0x1e0ffff0, 1, 50 * COIN);
+
+        if(false)
+        {
+            printf("Searching for testnet genesis block...\n");
+            bool fNegative;
+            bool fOverflow;
+            arith_uint256 bnTarget;
+            bnTarget.SetCompact(genesis.nBits, &fNegative, &fOverflow);
+            int algo = genesis.GetAlgo();
+
+            uint256 thash = genesis.GetPoWHash(algo);
+
+            while (UintToArith256(thash) > bnTarget)
+            {
+                thash = genesis.GetPoWHash(algo);
+                if (UintToArith256(thash) <= bnTarget)
+                    break;
+                if ((genesis.nNonce & 0xFFFFF) == 0)
+                {
+                    printf("nonce %08X: PoWhash = %s (target = %s)\n", genesis.nNonce, thash.ToString().c_str(), bnTarget.ToString().c_str());
+                }
+                ++genesis.nNonce;
+                if (genesis.nNonce == 0)
+                {
+                    printf("NONCE WRAPPED, incrementing time\n");
+                    ++genesis.nTime;
+                }
+            }
+
+            printf("genesis.nTime = %u \n", genesis.nTime);
+            printf("genesis.nNonce = %u \n", genesis.nNonce);
+            printf("genesis.GetHash = %s\n", genesis.GetHash().ToString().c_str());
+            printf("genesis.GetPoWHash = %s\n", genesis.GetPoWHash(algo).ToString().c_str());
+            printf("genesis.hashMerkleRoot = %s\n", BlockMerkleRoot(genesis).ToString().c_str());
+        }
+      
         consensus.hashGenesisBlock = genesis.GetHash();
         //assert(consensus.hashGenesisBlock == uint256S("0x00000bafbc94add76cb75e2ec92894837288a481e5c005f6563d91623bf8bc2c"));
         //assert(genesis.hashMerkleRoot == uint256S("0xe0028eb9648db56b1ac77cf090b99048a8007e2bb64b68f092c03c7f56a662c7"));
@@ -339,7 +375,7 @@ public:
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
 
-        fMiningRequiresPeers = true;
+        fMiningRequiresPeers = false;
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
         fMineBlocksOnDemand = false;
@@ -356,9 +392,9 @@ public:
             (   2999, uint256S("0x0000024bc3f4f4cb30d29827c13d921ad77d2c6072e586c7f60d83c2722cdcc5")),
 
             1462856598, // * UNIX timestamp of last checkpoint block
-            3094,       // * total number of transactions between genesis and last checkpoint
+            0,       // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
-            500         // * estimated number of transactions per day after checkpoint
+            10         // * estimated number of transactions per day after checkpoint
         };
 
     }
