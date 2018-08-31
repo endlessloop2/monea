@@ -188,9 +188,18 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 
     const CBlockIndex* pindexFirst = pindexPrev;
 
-    int64_t nMinActualTimespan = params.nPoWAveragingTargetTimespan() * (100 - params.nMaxAdjustUp) / 100;
-    int64_t nMaxActualTimespan = params.nPoWAveragingTargetTimespan() * (100 - params.nMaxAdjustDown) / 100;
 
+    // Initial mining phase, allow up to 20% difficulty change per block
+    int64_t nMinActualTimespan;
+    int64_t nMaxActualTimespan;
+
+    if (pindexLast->nHeight < 1999){    
+        nMinActualTimespan = params.nPoWAveragingTargetTimespan() * (100 - 20) / 100;
+        nMaxActualTimespan = params.nPoWAveragingTargetTimespan() * (100 + 20) / 100;
+    }else{    
+        nMinActualTimespan = params.nPoWAveragingTargetTimespan() * (100 - params.nMaxAdjustUp) / 100;
+        nMaxActualTimespan = params.nPoWAveragingTargetTimespan() * (100 + params.nMaxAdjustDown) / 100;
+    }
     // Go back by what we want to be nAveragingInterval blocks
     for (int i = 0; pindexFirst && i < params.nPoWAveragingInterval - 1; i++)
     {
