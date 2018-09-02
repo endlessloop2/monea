@@ -1290,8 +1290,11 @@ CAmount GetBlockSubsidy(int nPrevBits, int nPrevHeight, const Consensus::Params&
         nSubsidy -= nSubsidy/14;
     }
 
-    // Hard fork to reduce the block reward by 10 extra percent (allowing budget/superblocks)
     CAmount nSuperblockPart = (nPrevHeight > consensusParams.nBudgetPaymentsStartBlock) ? nSubsidy/10 : 0;
+
+    // Superblocks disabled until Sentinel is launched
+    if (sporkManager.IsSporkActive(SPORK_9_SUPERBLOCKS_ENABLED)==false)
+        nSuperblockPart=0;
 
     return fSuperblockPartOnly ? nSuperblockPart : nSubsidy - nSuperblockPart;
 }
