@@ -337,7 +337,9 @@ crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/argon2/encoding.c \
   crypto/argon2/encoding.h \
   crypto/argon2/thread.c \
-  crypto/argon2/thread.h 
+  crypto/argon2/thread.h \
+  crypto/neoscrypt/neoscrypt.c \
+  crypto/neoscrypt/neoscrypt.h
 
 # x11
 crypto_libbitcoin_crypto_a_SOURCES += \

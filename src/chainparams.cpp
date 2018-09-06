@@ -81,7 +81,7 @@ public:
         consensus.nMasternodePaymentsIncreaseBlock = 158000; // actual historical value
         consensus.nMasternodePaymentsIncreasePeriod = 576*30; // 17280 - actual historical value
         consensus.nInstantSendKeepLock = 24;
-        consensus.nBudgetPaymentsStartBlock = 328008; // actual historical value
+        consensus.nBudgetPaymentsStartBlock = 1000000; // actual historical value // SUPERBLOCKS ARE DISABLED
         consensus.nBudgetPaymentsCycleBlocks = 16616; // ~(60*24*30)/2.6, actual number of blocks per month is 200700 / 12 = 16725
         consensus.nBudgetPaymentsWindowBlocks = 100;
         consensus.nBudgetProposalEstablishingTime = 60*60*24;
@@ -93,18 +93,14 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
-        //consensus.BIP34Height = 1;
-        //consensus.BIP34Hash = uint256S("0x000007d91d1254d60e2dd1ae580383070a4ddffa4c64c2eeb4a2f9ecc0414343");
         consensus.powLimit[ALGO_SLOT1] = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Sha256 (From BTC)
         consensus.powLimit[ALGO_SLOT2] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Scrypt (From LTC) // reduced
-        consensus.powLimit[ALGO_SLOT3] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Neoscrypt (From UIS) // reduced
+        consensus.powLimit[ALGO_SLOT3] = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Neoscrypt (From DINERO)
         consensus.powLimit[ALGO_SLOT4] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Argon2d (From UIS) // reduced
         consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Yescrypt (From Unitus, might replace with koto)
         // consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); Dash value
         consensus.nPowTargetTimespan = 24 * 60 * 60; // Monea: 1 day
-        //consensus.nPowTargetSpacing = 2.5 * 60; // Monea: 2.5 minutes
-        
-        consensus.nPowTargetSpacing = 2*60; // 120 second block time
+        consensus.nPowTargetSpacing = 2*60; // 2 minutes block time // Dash: 2.5 mins
         consensus.nPoWAveragingInterval = 10; // 10 block averaging interval
         consensus.nMaxAdjustDown = 4; // 4% adjustment downwards
         consensus.nMaxAdjustUp = 4; // 4% adjustment upwards
@@ -112,8 +108,6 @@ public:
 
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
-        //consensus.nPowKGWHeight = 15200;
-        //consensus.nPowDGWHeight = 34140;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
@@ -228,8 +222,8 @@ public:
             boost::assign::map_list_of
             (  0, uint256S("0x00")),
             3701128,    // * total number of transactions between genesis and last checkpoint
-                        //   (the tx=... number in the SetBestChain debug.log lines)
-            5000        // * estimated number of transactions per day after checkpoint
+            0,            //   (the tx=... number in the SetBestChain debug.log lines)
+            10        // * estimated number of transactions per day after checkpoint
         };
     }
 };
@@ -259,11 +253,9 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 100;
-        //consensus.BIP34Height = 1;
-        //consensus.BIP34Hash = uint256S("0x0000047d24635e347be3aaaeb66c26be94901a2f962feccd4f95090191f208c1");
         consensus.powLimit[ALGO_SLOT1] = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Sha256 (From BTC)
         consensus.powLimit[ALGO_SLOT2] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Scrypt (From LTC) // reduced
-        consensus.powLimit[ALGO_SLOT3] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Neoscrypt (From UIS) // reduced
+        consensus.powLimit[ALGO_SLOT3] = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Neoscrypt (From DINERO)
         consensus.powLimit[ALGO_SLOT4] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Argon2d (From UIS) // reduced
         consensus.powLimit[ALGO_SLOT5] = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Yescrypt (From Unitus, might replace with koto)
         consensus.nPowTargetTimespan = 24 * 60 * 60; // Monea: 1 day
@@ -277,8 +269,6 @@ public:
 
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
-        //consensus.nPowKGWHeight = 4001; // nPowKGWHeight >= nPowDGWHeight means "no KGW"
-        //consensus.nPowDGWHeight = 4001;
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
@@ -313,7 +303,7 @@ public:
         nDelayGetHeadersTime = 24 * 60 * 60;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1390666206UL, 3861367235UL, 0x1e0ffff0, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1390666206UL, 3861367235UL, 0x1d00ffff, 1, 50 * COIN);
 
         if(false)
         {
@@ -356,7 +346,6 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("moneadot.io",  "testnet-seed.moneadot.io"));
         vSeeds.push_back(CDNSSeedData("masternode.io", "test.dnsseed.masternode.io"));
 
         // Testnet Monea addresses start with 'y'
@@ -387,9 +376,9 @@ public:
 
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            (    261, uint256S("0x00000c26026d0815a7e2ce4fa270775f61403c040647ff2c3091f99e894a4618"))
-            (   1999, uint256S("0x00000052e538d27fa53693efe6fb6892a0c1d26c0235f599171c48a3cce553b1"))
-            (   2999, uint256S("0x0000024bc3f4f4cb30d29827c13d921ad77d2c6072e586c7f60d83c2722cdcc5")),
+            (    0, uint256S("0x00"))
+            (   1999, uint256S("0x00"))
+            (   2999, uint256S("0x00")),
 
             1462856598, // * UNIX timestamp of last checkpoint block
             0,       // * total number of transactions between genesis and last checkpoint

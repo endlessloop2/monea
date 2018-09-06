@@ -6,6 +6,7 @@
 #include "primitives/block.h"
 
 #include "crypto/scrypt/scrypt.h"
+#include "crypto/neoscrypt/neoscrypt.h"
 #include "crypto/hashargon2d.h"
 #include "crypto/yescrypt/yescrypt.h"
 
@@ -38,8 +39,12 @@ uint256 CBlockHeader::GetPoWHash(int algo) const
             scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
             return thash;
         }       
-        case ALGO_SLOT3:
-            return GetHash(); // TODO: till need to implement these libraries, may change algo
+        case ALGO_SLOT3:{    
+            uint256 thash;
+            unsigned int profile = 0x0;
+            neoscrypt((unsigned char *) &nVersion, (unsigned char *) &thash, profile);
+            return thash;
+        }   
         case ALGO_SLOT4:
             return HashArgon2d(BEGIN(nVersion), END(nNonce));
         case ALGO_SLOT5:
