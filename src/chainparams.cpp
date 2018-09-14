@@ -77,8 +77,10 @@ public:
     CMainParams() {
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 1051200; // set to 20 for testing //  Note: actual number of blocks per calendar year with DGW v3 is ~200700 (for example 449750 - 249050)
-        consensus.nMasternodePaymentsStartBlock = 43800; // 2 months after genesis
-        consensus.nMNPaymentIncreaseBlocks = 5040; // steps in GetBlockSubsidy, increase every week
+        consensus.nMasternodePaymentsStartBlock = 30; // 2 months after genesis
+        consensus.nMNPaymentIncreaseBlocks = 10; // steps in GetBlockSubsidy, increase every week
+//        consensus.nMasternodePaymentsStartBlock = 43800; // 2 months after genesis
+//        consensus.nMNPaymentIncreaseBlocks = 5040; // steps in GetBlockSubsidy, increase every week
         consensus.nInstantSendKeepLock = 24;
         consensus.nBudgetPaymentsStartBlock = 1000000; // actual historical value // SUPERBLOCKS ARE DISABLED
         consensus.nBudgetPaymentsCycleBlocks = 16616; // ~(60*24*30)/2.6, actual number of blocks per month is 200700 / 12 = 16725
@@ -344,7 +346,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("sdads.cl", "test.dnsseed.masternode.io"));
+        vSeeds.push_back(CDNSSeedData("sdads.cl", "test.dnsseed.masternodedf.io"));
 
         // Testnet Monea addresses start with 'y'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,140);
